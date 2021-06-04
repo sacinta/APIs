@@ -5,7 +5,7 @@
 Demo API codes for Sacinta Mobile Robotics
 1. Go to www.sacinta.com
 2. Register an account
-3. Go to Subscriptions Menu and create a Demo Subscription
+3. Go to Subscriptions Menu and copy a Subscription Key
 4. Use the following functions for object detection and obstacle avoidance
 """
 
