@@ -63,7 +63,7 @@ request:
 
 respose:
 {	
-	"Result": [["image_number","BoundingBox","SampleName","UniqueId","Confidence","StatusCode","StatusMessage","MatchScore"]],
+	"Result": [["image_number","BoundingBox","SampleName","UniqueId","Confidence","StatusCode","StatusMessage","MatchCode"]],
     "StatusFlag": "<Status:1 if atleast 1 face is recognized, 0 if no face recognized, -1 for input error>",
     "StatusCode": "[SUCCESS, FAIL_FACE_NOT_DETECTED, FAIL_FACE_NOT_STRAIGHT, FAIL_FACE_SIZE_SMALL, FAIL_FACE_NOT_RECOGNIZED, MISSING_SUBSRIPTION_KEY, MISSING_SAMPLE_IMAGE, INVALID_SUBSRIPTION_KEY, INVALID_USER, GALLERY_EMPTY, DATABASE_EMPTY]",
     "StatusMessage": "<a message desccription>",
