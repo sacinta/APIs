@@ -19,7 +19,7 @@ request:
 
 response:
 {	
-	"Result": [["image_number","BoundingBox","Confidence","StatusCode","StatusMessage"]],
+	"Result": [["image_number","BoundingBox","StatusCode","StatusMessage"]],
     "StatusFlag": "<Status:1 if atleast 1 face is detected, 0 if no face detected, -1 for input error>",
     "StatusCode": "[SUCCESS, FAIL, MISSING_SUBSRIPTION_KEY, MISSING_SAMPLE_IMAGE, INVALID_SUBSRIPTION_KEY, INVALID_USER, INVALID_GALLERY, INVALID_ID_NAME, FACE_NOT_STRAIGHT]",
     "StatusMessage": "<a message description>",
