@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Mon Dec 27 19:52:10 2021
+
+@author: Ram
+"""
+
+# -*- coding: utf-8 -*-
+"""
 @author: Sacinta
 
 Demo API codes for Sacinta Face Recognition
@@ -18,9 +25,9 @@ import json
 from io import BytesIO
 import matplotlib.pyplot as plt
 
-site = "http://127.0.0.1:5000/face/"#"https://sacinta.com/face/"#
+site = "http://127.0.0.1:5000/asset/v1/"#"https://sacinta.com/face/"#
 # set the SubsriptionKey from Subscription Page
-subscriptionKey = "b45a33f34fab4b139dbdb5126782e536"#"8927f86599874bfb95a464351d53146c"#
+apiKey = "b45a33f34fab4b139dbdb5126782e536"#"8927f86599874bfb95a464351d53146c"#
 
 def detect(sampleImgFilename):
     '''
@@ -42,14 +49,14 @@ def detect(sampleImgFilename):
     sampleImg = base64.b64encode(image).decode('utf-8')      
     # create request
     sampleNumber = "1"
-    r = requests.post(site+"detect", json={"SubscriptionKey": subscriptionKey,                                             
+    r = requests.post(site+"detect", json={"ApiKey": apiKey,                                             
                                            "SampleImages": {sampleNumber:sampleImg}}) 
     # check response
     if(r.status_code==200):                
         jsonRes = json.loads(r.text) 
         print(jsonRes)
-        print(jsonRes['StatusCode'], " , ", jsonRes['StatusMessage'])   
-        if(jsonRes['StatusFlag']==1):    # success
+        print(jsonRes['ResponseCode'], " , ", jsonRes['ResponseMessage'])   
+        if(jsonRes['ResponseFlag']==1):    # success
             print("Time To Execute: ", jsonRes['TTE'])
             resultsJson = jsonRes['Result']            
             for result in resultsJson:
@@ -74,7 +81,7 @@ def enroll(sampleName, uniqueId, sampleImgFilenameLst, sampleProfileImgFilename)
 
     Returns
     -------
-    Result : [[SampleNumber, StatusMessage]] if successul
+    Result : [[SampleNumber, ResponseMessage]] if successul
     Empty List if it fails
     '''
     enrollStatus = list()    
@@ -92,7 +99,7 @@ def enroll(sampleName, uniqueId, sampleImgFilenameLst, sampleProfileImgFilename)
         sampleImagesDict[str(sampleIndex+1)] = sampleImg
         
     # create request    
-    r = requests.post(site+"enroll", json={"SubscriptionKey": subscriptionKey, 
+    r = requests.post(site+"enroll", json={"ApiKey": apiKey, 
                                            "UniqueId": uniqueId, 
                                            "SampleName": sampleName, 
                                            "SampleProfileImg": sampleProfileImg, 
@@ -100,13 +107,13 @@ def enroll(sampleName, uniqueId, sampleImgFilenameLst, sampleProfileImgFilename)
     # check response
     if(r.status_code==200):                
         jsonRes = json.loads(r.text)
-        print(jsonRes['StatusCode'], " , ", jsonRes['StatusMessage'])       
-        if(jsonRes['StatusFlag']==1):    # success 
+        print(jsonRes['ResponseCode'], " , ", jsonRes['ResponseMessage'])       
+        if(jsonRes['ResponseFlag']==1):    # success 
             print("Time To Execute: ", jsonRes['TTE'])
             resultsJson = jsonRes['Result']
             for result in resultsJson:
-                enrollStatus.append([result['SampleNumber'], result['StatusMessage']])
-                print("SampleNumber ", result['SampleNumber'], " , ", result['StatusMessage'])
+                enrollStatus.append([result['SampleNumber'], result['ResultMessage']])
+                print("SampleNumber ", result['SampleNumber'], " , ", result['ResultMessage'])
             return enrollStatus
         else:   # enroll fail
             return enrollStatus
@@ -137,13 +144,13 @@ def recognize(sampleImgFilenameLst):
         sampleImagesDict[str(sampleIndex+1)] = sampleImg
     
     #create request 
-    r = requests.post(site+"recognize", json={"SubscriptionKey": subscriptionKey,                                             
+    r = requests.post(site+"recognize", json={"ApiKey": apiKey,                                             
                                            "SampleImages": sampleImagesDict})#{sampleNumber:sampleImg}}) 
     # check response
     if(r.status_code==200):                
         jsonRes = json.loads(r.text)
-        print(jsonRes['StatusCode'], " , ", jsonRes['StatusMessage'])            
-        if(jsonRes['StatusFlag']==1):    # success
+        print(jsonRes['ResponseCode'], " , ", jsonRes['ResponseMessage'])            
+        if(jsonRes['ResponseFlag']==1):    # success
             print("Time To Execute: ", jsonRes['TTE'])
             resultsJson = jsonRes['Result']            
             for result in resultsJson:
@@ -166,11 +173,11 @@ def get_enrolls():
     Empty List if it fails
     '''
     enrolledIds = list()
-    r = requests.post(site+"get_enrolls", json={"SubscriptionKey": subscriptionKey}) 
+    r = requests.post(site+"get_enrolls", json={"ApiKey": apiKey}) 
     from datetime import datetime
     scanTime = datetime.utcnow().timestamp()
 # =============================================================================
-#     r = requests.post("http://127.0.0.1:5000/asset/track", json={"SubscriptionKey": "b22c5f0da9a34185ac3da0f0bb2346a2",
+#     r = requests.post("http://127.0.0.1:5000/asset/track", json={"ApiKey": "b22c5f0da9a34185ac3da0f0bb2346a2",
 #                                                                  "Asset":{1:{"AssetCode": int(scanTime),
 #                                                                           "LocationId":8,"LocationLat":52.07,"LocationLong":17.06,
 #                                                                           "ScanType":"Drop", "ScanTimeUTC":scanTime},
@@ -180,21 +187,22 @@ def get_enrolls():
 #                                                                  })    
 # =============================================================================
 # =============================================================================
-#     r = requests.post("http://127.0.0.1:5000/asset/track", json={"SubscriptionKey":"b22c5f0da9a34185ac3da0f0bb2346a2",
+#     r = requests.post("http://127.0.0.1:5000/asset/track", json={"ApiKey":"b22c5f0da9a34185ac3da0f0bb2346a2",
 #                                                                   "Asset":{"1628525440138-1":{"AssetCode":"036000291452-1","LocationId":8,"LocationLat":12.9501196,"LocationLong":80.1953591,"ScanType":"Pick","ScanTimeUTC":"2021-08-09 21:40:40"},
 #                                                                            "1628525569571-1":{"AssetCode":"036000291452-2","LocationId":8,"LocationLat":0,"LocationLong":0,"ScanType":"Pick","ScanTimeUTC":"2021-08-09 21:41:40.138000"},
 #                                                                            "1628567449430-1":{"AssetCode":"036000291452-3","LocationId":8,"LocationLat":0,"LocationLong":0,"ScanType":"Drop","ScanTimeUTC":"2021-08-09 21:42:40.138000"}}}
 #                                                                   )
 # =============================================================================
-    #r = requests.post("http://127.0.0.1:5000/asset/locations", json={"SubscriptionKey":"a2f2b09554d740e585298e02637047ad"})
-    #r = requests.post("http://127.0.0.1:5000/user_info", json={"SubscriptionKey":"b22c5f0da9a34185ac3da0f0bb2346a2","Asset":{"1629439482765":{"AssetCode":"5012345678900","LocationId":28,"LocationLat":12.950107,"LocationLong":80.1953913,"ScanType":"Pick","ScanTimeUTC":1629439482765}}})
-    #r = requests.post("http://127.0.0.1:5000/asset/track", json={"SubscriptionKey":"b22c5f0da9a34185ac3da0f0bb2346a2"})
+    #r = requests.post("http://127.0.0.1:5000/asset/locations", json={"ApiKey":"a2f2b09554d740e585298e02637047ad"})
+    #r = requests.post("http://127.0.0.1:5000/user_info", json={"ApiKey":"b22c5f0da9a34185ac3da0f0bb2346a2","Asset":{"1629439482765":{"AssetCode":"5012345678900","LocationId":28,"LocationLat":12.950107,"LocationLong":80.1953913,"ScanType":"Pick","ScanTimeUTC":1629439482765}}})
+    #r = requests.post("http://127.0.0.1:5000/asset/track", json={"ApiKey":"b22c5f0da9a34185ac3da0f0bb2346a2"})
     #print('scanTime ', scanTime)
-    #r = requests.post("http://127.0.0.1:5000/asset/android_version")    
+    #r = requests.post("http://127.0.0.1:5000/asset/android_version")
+    print(r.status_code)
     if(r.status_code==200): 
-        jsonRes = json.loads(r.text)          
-        print(jsonRes['StatusCode'], " , ", jsonRes['StatusMessage'])
-        if(jsonRes['StatusFlag']==1):       # success 
+        jsonRes = json.loads(r.text)  
+        print(jsonRes['ResponseCode'], " , ", jsonRes['ResponseMessage'])
+        if(jsonRes['ResponseFlag']==1):       # success 
             print("Time To Execute: ", jsonRes['TTE'])
             idLst = jsonRes['Result']['Ids']
             for idName in idLst:
@@ -202,7 +210,7 @@ def get_enrolls():
             print(enrolledIds)                   
 
 # =============================================================================
-#     r = requests.post("http://127.0.0.1:5000/asset/live_tracking", json={"SubscriptionKey": "b22c5f0da9a34185ac3da0f0bb2346a2",
+#     r = requests.post("http://127.0.0.1:5000/asset/live_tracking", json={"ApiKey": "b22c5f0da9a34185ac3da0f0bb2346a2",
 #                                                                  "LocationData":{1:{"LocationLat":52.07,"LocationLong":17.06,
 #                                                                           "Speed":0, "LogTimeUTC":scanTime},
 #                                                                           2:{"LocationLat":52.08,"LocationLong":17.07,
@@ -226,7 +234,7 @@ def remove(removeIdsList):
 
     Returns
     -------
-    Result : [[SampleUniqueId, StatusMessage]] if successul
+    Result : [[SampleUniqueId, ResponseMessage]] if successul
     Empty List if it fails
     '''    
     # create dictionary with all the ids to be removed. To get list of ids, use get_enrolls
@@ -234,40 +242,42 @@ def remove(removeIdsList):
     for sampleIndex in range(len(removeIdsList)):
         uniqueIdsDict[str(sampleIndex+1)] = removeIdsList[sampleIndex]
     # create request
-    r = requests.post(site+"remove", json={"SubscriptionKey": subscriptionKey,                                             
+    r = requests.post(site+"remove_enrolls", json={"ApiKey": apiKey,                                             
                                            "UniqueIds": uniqueIdsDict}) 
     deletedLst = []
     # check response
     if(r.status_code==200):                
         jsonRes = json.loads(r.text)
-        print(jsonRes['StatusCode'], " , ", jsonRes['StatusMessage'])        
-        if(jsonRes['StatusFlag']==1):    # success 
+        print(jsonRes['ResponseCode'], " , ", jsonRes['ResponseMessage'])        
+        if(jsonRes['ResponseFlag']==1):    # success 
             print("Time To Execute: ", jsonRes['TTE'])
             resultsJson = jsonRes['Result']
             for result in resultsJson:
-                print("SampleUniqueId ", result['SampleUniqueId'], " ,StatusMessage ", result['StatusMessage'])        
-                deletedLst.append([result['SampleUniqueId'],result['StatusMessage']])             
+                print("SampleUniqueId ", result['SampleUniqueId'], " ,ResponseMessage ", result['ResultMessage'])        
+                deletedLst.append([result['SampleUniqueId'],result['ResultMessage']])             
             return deletedLst            
         else:   # delete fail            
-            return jsonRes['StatusMessage']
+            return jsonRes['ResponseMessage']
     else: # invalid response
         return "Error"
 
-# detect
-filename = "G:/Work/Sacinta/project/static/blog_assets/face-recognition/simon-helberg.jpg"#"test-image.jpg"#"C:/Users/Ram/Desktop/thumbs-down.png"#"G:/Datasets/image.jpg" # replace this with your image location
-# detect
-detect(filename)
-# enroll
-sampleName = "test"
-uniqueId = "t01"
-sampleImgFilenameLst = [filename] # create a list of all the filenames you want to enroll
-sampleProfileImgFilename = filename
-enroll(sampleName, uniqueId, sampleImgFilenameLst, sampleProfileImgFilename)
-# recognize
-sampleImgFilenameLst = [filename] # create a list of all the filenames you want to recognize
-recognize(sampleImgFilenameLst)
-# get all enrolled ids
-enrolledIds = get_enrolls()
-# Remove enrolled id
-removeIdsList = "t01"#enrolledIds[0][1] # unqiue id of the 1st name enrolled
-remove([removeIdsList])
+# =============================================================================
+# # detect
+# filename = "G:/Work/Sacinta/project/static/blog_assets/face-recognition/simon-helberg.jpg"#"test-image.jpg"#"C:/Users/Ram/Desktop/thumbs-down.png"#"G:/Datasets/image.jpg" # replace this with your image location
+# # detect
+# detect(filename)
+# # enroll
+# sampleName = "test"
+# uniqueId = "t01"
+# sampleImgFilenameLst = [filename] # create a list of all the filenames you want to enroll
+# sampleProfileImgFilename = filename
+# enroll(sampleName, uniqueId, sampleImgFilenameLst, sampleProfileImgFilename)
+# # recognize
+# sampleImgFilenameLst = [filename] # create a list of all the filenames you want to recognize
+# recognize(sampleImgFilenameLst)
+# # get all enrolled ids
+# enrolledIds = get_enrolls()
+# # Remove enrolled id
+# removeIdsList = "t01"#enrolledIds[0][1] # unqiue id of the 1st name enrolled
+# remove([removeIdsList])
+# =============================================================================
