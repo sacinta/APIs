@@ -18,9 +18,9 @@ import json
 from io import BytesIO
 import matplotlib.pyplot as plt
 
-site = "http://127.0.0.1:5000/face/"#"https://sacinta.com/face/"#
+site = "https://www.sacinta.com/face/"
 # set the SubsriptionKey from Subscription Page
-subscriptionKey = "b45a33f34fab4b139dbdb5126782e536"#"8927f86599874bfb95a464351d53146c"#
+subscriptionKey = "xxxxxxxxxxxxxxxxxxxxx"
 
 def detect(sampleImgFilename):
     '''
@@ -47,7 +47,6 @@ def detect(sampleImgFilename):
     # check response
     if(r.status_code==200):                
         jsonRes = json.loads(r.text) 
-        print(jsonRes)
         print(jsonRes['StatusCode'], " , ", jsonRes['StatusMessage'])   
         if(jsonRes['StatusFlag']==1):    # success
             print("Time To Execute: ", jsonRes['TTE'])
@@ -166,33 +165,9 @@ def get_enrolls():
     Empty List if it fails
     '''
     enrolledIds = list()
-    r = requests.post(site+"get_enrolls", json={"SubscriptionKey": subscriptionKey}) 
-    from datetime import datetime
-    scanTime = datetime.utcnow().timestamp()
-# =============================================================================
-#     r = requests.post("http://127.0.0.1:5000/asset/track", json={"SubscriptionKey": "b22c5f0da9a34185ac3da0f0bb2346a2",
-#                                                                  "Asset":{1:{"AssetCode": int(scanTime),
-#                                                                           "LocationId":8,"LocationLat":52.07,"LocationLong":17.06,
-#                                                                           "ScanType":"Drop", "ScanTimeUTC":scanTime},
-#                                                                           2:{"AssetCode": int(datetime.utcnow().timestamp()),
-#                                                                           "LocationId":8,"LocationLat":52.07,"LocationLong":17.06,
-#                                                                           "ScanType":"Drop", "ScanTimeUTC":scanTime}}
-#                                                                  })    
-# =============================================================================
-# =============================================================================
-#     r = requests.post("http://127.0.0.1:5000/asset/track", json={"SubscriptionKey":"b22c5f0da9a34185ac3da0f0bb2346a2",
-#                                                                   "Asset":{"1628525440138-1":{"AssetCode":"036000291452-1","LocationId":8,"LocationLat":12.9501196,"LocationLong":80.1953591,"ScanType":"Pick","ScanTimeUTC":"2021-08-09 21:40:40"},
-#                                                                            "1628525569571-1":{"AssetCode":"036000291452-2","LocationId":8,"LocationLat":0,"LocationLong":0,"ScanType":"Pick","ScanTimeUTC":"2021-08-09 21:41:40.138000"},
-#                                                                            "1628567449430-1":{"AssetCode":"036000291452-3","LocationId":8,"LocationLat":0,"LocationLong":0,"ScanType":"Drop","ScanTimeUTC":"2021-08-09 21:42:40.138000"}}}
-#                                                                   )
-# =============================================================================
-    #r = requests.post("http://127.0.0.1:5000/asset/locations", json={"SubscriptionKey":"a2f2b09554d740e585298e02637047ad"})
-    #r = requests.post("http://127.0.0.1:5000/user_info", json={"SubscriptionKey":"b22c5f0da9a34185ac3da0f0bb2346a2","Asset":{"1629439482765":{"AssetCode":"5012345678900","LocationId":28,"LocationLat":12.950107,"LocationLong":80.1953913,"ScanType":"Pick","ScanTimeUTC":1629439482765}}})
-    #r = requests.post("http://127.0.0.1:5000/asset/track", json={"SubscriptionKey":"b22c5f0da9a34185ac3da0f0bb2346a2"})
-    #print('scanTime ', scanTime)
-    #r = requests.post("http://127.0.0.1:5000/asset/android_version")    
+    r = requests.post(site+"get_enrolls", json={"SubscriptionKey": subscriptionKey})    
+    jsonRes = json.loads(r.text)    
     if(r.status_code==200): 
-        jsonRes = json.loads(r.text)          
         print(jsonRes['StatusCode'], " , ", jsonRes['StatusMessage'])
         if(jsonRes['StatusFlag']==1):       # success 
             print("Time To Execute: ", jsonRes['TTE'])
@@ -200,20 +175,6 @@ def get_enrolls():
             for idName in idLst:
                 enrolledIds.append([idName['SampleName'],idName['UniqueId']])
             print(enrolledIds)                   
-
-# =============================================================================
-#     r = requests.post("http://127.0.0.1:5000/asset/live_tracking", json={"SubscriptionKey": "b22c5f0da9a34185ac3da0f0bb2346a2",
-#                                                                  "LocationData":{1:{"LocationLat":52.07,"LocationLong":17.06,
-#                                                                           "Speed":0, "LogTimeUTC":scanTime},
-#                                                                           2:{"LocationLat":52.08,"LocationLong":17.07,
-#                                                                           "Speed":0, "LogTimeUTC":scanTime}}
-#                                                                  })    
-#     print(r.status_code)
-#     if(r.status_code==200): 
-#         jsonRes = json.loads(r.text)  
-#         print(jsonRes)        
-# =============================================================================
-            
     return enrolledIds
 
 def remove(removeIdsList):
@@ -254,8 +215,7 @@ def remove(removeIdsList):
         return "Error"
 
 # detect
-filename = "G:/Work/Sacinta/project/static/blog_assets/face-recognition/simon-helberg.jpg"#"test-image.jpg"#"C:/Users/Ram/Desktop/thumbs-down.png"#"G:/Datasets/image.jpg" # replace this with your image location
-# detect
+filename = "G:/Datasets/image.jpg" # replace this with your image location
 detect(filename)
 # enroll
 sampleName = "test"
@@ -269,5 +229,5 @@ recognize(sampleImgFilenameLst)
 # get all enrolled ids
 enrolledIds = get_enrolls()
 # Remove enrolled id
-removeIdsList = "t01"#enrolledIds[0][1] # unqiue id of the 1st name enrolled
+removeIdsList = enrolledIds[0][1] # unqiue id of the 1st name enrolled
 remove([removeIdsList])
