@@ -5,97 +5,97 @@
 Demo API codes for Sacinta Logistics Manager
 1. Go to www.sacinta.com
 2. Register an account
-3. Get the API key from the Profile section
+3. Get the API key from the API Templates section
 3. Use the following functions
 """
 
+## Sample Python Codes for basic funcitons ##
+## Python and Android codes for your specific inputs for all the functions avaiable at https://www.sacinta.com/api-templates/logistics ##
 import requests
-import base64
-from cv2 import *
-import numpy
-from PIL import Image
 import json
-from io import BytesIO
-import datetime
-
-site = "https://api.sacinta.com/logistics/v1/"
-apiKey = "get api key from subscription page and paste here"
-
-def track_get_locations():
-    print("\n------------------ track_get_locations -----------------------")
-    r = requests.post(site+"asset:get_locations", json={"ApiKey": apiKey}) 
-    # check response
-    if(r.status_code==200):                
-        jsonRes = json.loads(r.text) 
-        print(jsonRes) 
-        if 'Result' in jsonRes:
-            print("\n------------------ Result JSON -----------------------")
-            print(jsonRes['Result'])     
-    else: # invalid response
-        print(r.status_code)
-    r.close()
-        
-def track_scan_asset(sampleImgFilename):
-    print("\n------------------ track_scan_asset -----------------------")
-    # read sampleImgFilename and encode sampleImgArray as base64 image    
-    sampleImgArray = cv2.cvtColor(numpy.array(Image.open(sampleImgFilename)), cv2.COLOR_BGR2RGB)
-    success, image = cv2.imencode('.jpg', sampleImgArray) # sampleImgArray as uint8 numpy array
-    sampleImg = base64.b64encode(image).decode('utf-8')      
-    # create request
-    sampleNumber = "1"
-    inputDict = {"AssetImage":sampleImg,"LocationLat":"135.256","LocationLong":"-256.135", "LocationId":"8","ScanType":"Drop", "ScanTimeUTC":"2022-02-09 10:11:45.2"}
+import base64
     
-    r = requests.post(site+"asset:scan", json={"ApiKey": apiKey,                                             
-                                           "Asset":{"1":inputDict}}) 
-    # check response
-    if(r.status_code==200):                
-        jsonRes = json.loads(r.text) 
-        print(jsonRes) 
-        if 'Result' in jsonRes:
-            print("\n------------------ Result JSON -----------------------")
-            print(jsonRes['Result'])        
+def assetlocations():
+    # create json packet to send
+    requestJson = {
+      "ApiKey": "ENTER_YOUR_API_KEY_HERE"
+    }  
+    r = requests.post("https://api.sacinta.com/logistics/v1/asset:get_locations", json=requestJson, verify=True) 
+    if(r.status_code==200):     
+        jsonResponse = json.loads(r.text) 
+        print(jsonResponse)     
     else: # invalid response
-        print(r.status_code)
-    r.close()
+        print("Invalid response code ", r.status_code)
 
-def admin_current_asset_status():
-    print("\n------------------ admin_current_asset_status -----------------------")
-    r = requests.post(site+"admin:asset:current_status", json={"ApiKey": apiKey}) 
-    # check response
-    if(r.status_code==200):                
-        jsonRes = json.loads(r.text) 
-        print(jsonRes) 
-        if 'Result' in jsonRes:
-            print("\n------------------ Result JSON -----------------------")
-            print(jsonRes['Result'])       
+             
+def assetscanImage():
+    # convert image to base64 string
+    imageBase64 = ""
+    with open("ENTER_YOUR_FILENAME_HERE", "rb") as imageFile:
+        imageBase64 = base64.b64encode(imageFile.read())
+    # create json packet to send
+    requestJson = {
+        "Asset": {
+            "data1": {
+                "AssetImage": imageBase64,
+                "ScanType": "drop",
+                "ScanTimeUTC": "2023-02-12 14:42:00",
+                "LocationId": 8
+            }
+        },
+        "ApiKey": "ENTER_YOUR_API_KEY_HERE"
+    } 
+    r = requests.post("https://api.sacinta.com/logistics/v1/asset:scan", json=requestJson, verify=True) 
+    if(r.status_code==200):     
+        jsonResponse = json.loads(r.text) 
+        print(jsonResponse)     
     else: # invalid response
-        print(r.status_code) 
-    r.close()
+        print("Invalid response code ", r.status_code)
 
-def admin_manage_asset(sampleImgFilename):
-    print("\n------------------ track_scan_asset -----------------------")
-    # read sampleImgFilename and encode sampleImgArray as base64 image    
-    sampleImgArray = cv2.cvtColor(numpy.array(Image.open(sampleImgFilename)), cv2.COLOR_BGR2RGB)
-    success, image = cv2.imencode('.jpg', sampleImgArray) # sampleImgArray as uint8 numpy array
-    sampleImg = base64.b64encode(image).decode('utf-8')      
-    # create request
-    sampleNumber = "1"
-    inputDict = {"AssetImage":sampleImg,"AssetAction":"Add"}
-    
-    r = requests.post(site+"admin:asset:manage", json={"ApiKey": apiKey,                                             
-                                           "Asset":{"1":inputDict}}) 
-    # check response
-    if(r.status_code==200):                
-        jsonRes = json.loads(r.text) 
-        print(jsonRes) 
-        if 'Result' in jsonRes:
-            print("\n------------------ Result JSON -----------------------")
-            print(jsonRes['Result'])       
+def assetscanCode():
+    # convert image to base64 string
+    imageBase64 = ""
+    with open("ENTER_YOUR_FILENAME_HERE", "rb") as imageFile:
+        imageBase64 = base64.b64encode(imageFile.read())
+    # create json packet to send
+    requestJson = {
+        "Asset": {
+            "data1": {
+                "AssetCode": "12987689765432"
+                "ScanType": "drop",
+                "ScanTimeUTC": "2023-02-12 14:42:00",
+                "LocationId": 8
+            }
+        },
+        "ApiKey": "ENTER_YOUR_API_KEY_HERE"
+    } 
+    r = requests.post("https://api.sacinta.com/logistics/v1/asset:scan", json=requestJson, verify=True) 
+    if(r.status_code==200):     
+        jsonResponse = json.loads(r.text) 
+        print(jsonResponse)     
     else: # invalid response
-        print(r.status_code)
-    r.close()
+        print("Invalid response code ", r.status_code)
         
-track_get_locations()        
-track_scan_asset("barcode.png") # replace with image location
-admin_current_asset_status()
-admin_manage_asset("barcode.png")   # replace with image location
+              
+def sendlivetracking():
+    # create json packet to send
+    requestJson = {
+        "LocationData": {
+            "data1": {
+                "RouteUUID": "123456",
+                "LocationLat": 17.56,
+                "LocationLong": 78.23,
+                "LocationAccuracy": 50,
+                "Speed": 10,
+                "Altitude": 560,
+                "AltitudeAccuracy": 10
+            }
+      },
+      "ApiKey": "ENTER_YOUR_API_KEY_HERE"
+    }
+    r = requests.post("https://api.sacinta.com/logistics/v1/track:send_live_tracking", json=requestJson, verify=True) 
+    if(r.status_code==200):     
+        jsonResponse = json.loads(r.text) 
+        print(jsonResponse)     
+    else: # invalid response
+        print("Invalid response code ", r.status_code)
