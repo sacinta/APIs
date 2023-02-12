@@ -1,7 +1,50 @@
-# API Structure for Face Recognition
-This document contains the JSON structure to access the Face Recognition APIs. The *Receive JSONs* follow the main structure, to see, please check the readme in *[Main API](https://github.com/sacinta/sacinta-services/tree/main/APIs)*
 
-**Updated 26-Feb-2022**
+# API Structure for Face Recognition
+
+## API Basic Template
+This document contains the basic JSON structure to access the APIs. Please check each service to check the exact details.  You can try all the templates from [API Templates Page](https://www.sacinta.com/api-templates/api-key)
+
+### Send JSON
+The JSON structure for different versions are specific to the function. There are a few mandatory inputs for all the functions, and are as follows
+
+### Version v1
+**API Keys can be obtained from [API Templates Page](https://www.sacinta.com/api-templates/api-key)**
+| Field | Description |
+| --- | --- |
+| `ApiKey` | User API Key |
+
+### Receive JSON
+The JSON structure for different versions are as follows:
+		
+### Version v1
+| Field | Description |
+| --- | --- |
+| `TTE` | Time to execute the function in seconds **seconds** |
+| `ApiCode` | **OBSOLETE**, **DEPRECATED** or **ACTIVE** |
+| `ApiFlag` | 1 for **ACTIVE** , 0 for **DEPRECATED**, -1 for **OBSOLETE**|
+| `ApiMessage` | API message in user preferred language. Default is **English** |
+| `ResponseCode` | **SUCCESS**, **FAIL** or errors specific to function |
+| `ResponseFlag` | 1 for **SUCCESS**, 0 for **FAIL**,  and -1 for errors |
+| `ResponseMessage` | Response message in user preferred language. Default is **English** |
+| `Result` | JSON Result for the specific function. *Result is only available if ResponseFlag is 0 or 1* |
+
+| Result Field | Description |
+| --- | --- |
+| Keys Specific to each function | Results specific to function |
+| `ResultCode` | **SUCCESS**, **FAIL** or errors specific to function |
+| `ResultFlag` | 1 for **SUCCESS**, 0 for **FAIL**,  and -1 for errors |
+| `ResultMessage` | Result message in user preferred language. Default is **English** |
+
+1. *API Fields* contain info regarding the request api version
+   - Response and the Result fields are only available if the API version is  **ACTIVE** or **DEPRECATED**
+2. *Response Fields* contains info regarding the validity of the inputs. 
+   - If the user has missed any of the mandatory inputs or if the user does not have the permission to access the service, it will return an error. 
+   - If all the inputs are okay, it will return **SUCCESS**
+3. *Result Fields* contain results for all the inputs.
+   - It's possible to send multiple inputs to the service, the result field will contain the info regarding each input
+   - Each input has the result keys specific to the function allong with *ResultCode* *ResultFlag* and the *ResultMessage*.
+   
+## API Functions Available
 The following functions are available
 1. Detect - Detects faces and returns bounding boxes for each face
 2. Enroll - Enrolls a face
@@ -9,31 +52,28 @@ The following functions are available
 4. Get Enrolls - Get the list of enrolled sample names and unqiue ids
 5. Remove Enrolls - Remove ids from the database				
 ## Detect
-This function returns the list of detected faces
+This function returns the list of detected faces in all the sample images
 
 ### Version v1
 
 #### Send JSON
 **Route : https://api.sacinta.com/face/v1/detect**
 
-Create the images filed. Sample number can be any unique alphanumeric string. The response will contain results for each of the sample numbers.
+| SampleImages Field |Description |
+| --- | --- | --- |
+| Sample Number | Base64 Encoded image of the face(s) |
+Sample number can be any unique alphanumeric string.
 
-| Images Field | Description |
-| --- | --- |
-| Sample Number 1 | Base64 Encoded image of the face(s) |
-| Sample Number 2 | Base64 Encoded image of the face(s) |
-
-| Field | Description |
-| --- | --- |
-| `ApiKey` | User API Key |
-| `SampleImages` | Images |
+| Field | Type | Description |
+| --- | --- | --- |
+| `ApiKey` | Required | User API Key |
+| `SampleImages` | Required | Images |
 
 Example JSON:
-{"ApiKey": "api key string", "SampleImages":{"1":"base64 encoded string",
-											 "2":"base64 encoded string"}}
+{"ApiKey": "api key string", "SampleImages":{"sample1":"base64 encoded string",  "sample2":"base64 encoded string"}}
 									  
 #### Receive JSON
-If successful, the result contains the hub details in the result. 
+If successful, the result contains the hub details in the result. The response will contain results for each of the sample number.
 
 | Result Field | Description |
 | --- | --- |
@@ -53,16 +93,13 @@ If successful, the result contains the hub details in the result.
 | `LIMIT_EXCEEDED` | -1 | This subscription has exceeded its request quota |
 | `NOT_ALLOWED` | -1 | This subscription does not have access to the requested service |
 
-
 | ResultCode | ResultFlag | ResultMessage |
 | --- | --- | --- |
 | `SUCCESS` | 1 | Face detected |
 		
 Example JSON: *User Langauge is German* 
 
-{'ApiCode': 'ACTIVE', 'ApiFlag': 1, 'ApiMessage': 'API ist aktiv', 'ResponseCode': 'SUCCESS', 'ResponseFlag': 1, 'ResponseMessage': '2 Gesicht(e) gefunden in 2 Bild(e)', 
-	'Result': [{'BoundingBox': [56.0, 23.0, 100.0, 121.0], 'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Gesicht erkannt', 'SampleNumber': '1'}, 
-			   {'BoundingBox': [56.0, 23.0, 100.0, 121.0], 'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Gesicht erkannt', 'SampleNumber': '2'}], 'TTE': '0.18s'}
+{'ApiCode': 'ACTIVE', 'ApiFlag': 1, 'ApiMessage': 'API ist aktiv', 'ResponseCode': 'SUCCESS', 'ResponseFlag': 1, 'ResponseMessage': '2 Gesicht(e) gefunden in 2 Bild(e)', 'Result': [{'BoundingBox': [56.0, 23.0, 100.0, 121.0], 'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Gesicht erkannt', 'SampleNumber': 'sample1'},  {'BoundingBox': [56.0, 23.0, 100.0, 121.0], 'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Gesicht erkannt', 'SampleNumber': 'sample2'}], 'TTE': '0.18s'}
 
 ## Enroll
 This function is used to enroll faces
@@ -72,29 +109,27 @@ This function is used to enroll faces
 #### Send JSON
 **Route : https://api.sacinta.com/face/v1/enroll**
 
-Create the images filed. Sample number can be any unique alphanumeric string. The response will contain results for each of the sample numbers.
-
 *Note: Each image must contain only one face. Images with multiple faces will be rejected*
 
-| Images Field | Description |
+| SampleImages Field | Description |
 | --- | --- |
-| Sample Number 1 | Base64 Encoded image of the face |
-| Sample Number 2 | Base64 Encoded image of the face |
+| Sample Number | Base64 Encoded image of the face |
+Sample number can be any unique alphanumeric string. 
 
-| Field | Description |
-| --- | --- |
-| `ApiKey` | User API Key |
-| `SampleImages` | Images |
-| `UniqueId` | Unique id for the sample. Can be alphanumeric and -_ and space  |
-| `SampleName` | Sample name. Can be alphanumeric and -_ and space |
-| `SampleProfileImg` | Base64 Encoded profile thumbnail image of the sample. Face must be atleast 100x100 px |
+| Field | Type | Description |
+| --- | --- | --- | 
+| `ApiKey` | Mandatory | User API Key |
+| `SampleImages` | Mandatory | Images |
+| `UniqueId` | Mandatory | Unique id for the sample. Can be alphanumeric and -_ and space  |
+| `SampleName` | Mandatory | Sample name. Can be alphanumeric and -_ and space |
+| `SampleProfileImg` | Optional | Base64 Encoded profile thumbnail image of the sample. Face must be atleast 100x100 px |
 
 Example JSON:
 
-{'ApiKey': 'api key string', 'UniqueId': 't220226-01', 'SampleName': 'test', 'SampleProfileImg': 'dummy', 'SampleImages': {'1': 'base64 encoded string', '2': 'base64 encoded string'}}
+{'ApiKey': 'api key string', 'UniqueId': 't220226-01', 'SampleName': 'test', 'SampleProfileImg': 'dummy', 'SampleImages': {'sample1': 'base64 encoded string', 'sample2': 'base64 encoded string'}}
 									  
 #### Receive JSON
-If successful, the result contains the hub details in the result. 
+If successful, the result contains the hub details in the result.  The response will contain results for each of the sample number.
 
 | Result Field | Description |
 | --- | --- |
@@ -127,9 +162,7 @@ If successful, the result contains the hub details in the result.
 		
 Example JSON: *User Langauge is German* 
 
-{'ApiCode': 'ACTIVE', 'ApiFlag': 1, 'ApiMessage': 'API ist aktiv', 'ResponseCode': 'SUCCESS', 'ResponseFlag': 1, 'ResponseMessage': 'Eingeschrieben 2/2 Bild(e)', 
-	'Result': [{'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Gesicht eingeschrieben', 'SampleNumber': '1'}, 
-			   {'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Gesicht eingeschrieben', 'SampleNumber': '2'}], 'TTE': '0.6s'}
+{'ApiCode': 'ACTIVE', 'ApiFlag': 1, 'ApiMessage': 'API ist aktiv', 'ResponseCode': 'SUCCESS', 'ResponseFlag': 1, 'ResponseMessage': 'Eingeschrieben 2/2 Bild(e)', 	'Result': [{'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Gesicht eingeschrieben', 'SampleNumber': 'sample1'}, {'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Gesicht eingeschrieben', 'SampleNumber': 'sample2'}], 'TTE': '0.6s'}
 		
 ## Recognize
 This function is used to recognize faces in the given image and return the sample name and unique id for each associated face
@@ -139,27 +172,24 @@ This function is used to recognize faces in the given image and return the sampl
 #### Send JSON
 **Route : https://api.sacinta.com/face/v1/recognize**
 
-Create the images filed. Sample number can be any unique alphanumeric string. The response will contain results for each of the sample numbers.
-
-| Images Field | Description |
+| SampleImages Field | Description |
 | --- | --- |
-| Sample Number 1 | Base64 Encoded image of the face(s) |
-| Sample Number 2 | Base64 Encoded image of the face(s) |
+| Sample Number | Base64 Encoded image of the face(s) |
+Sample number can be any unique alphanumeric string.
 
-| Field | Description |
-| --- | --- |
-| `ApiKey` | User API Key |
-| `SampleImages` | Images |
-| `GalleryUniqueId` | Unique ID for the gallery (*Optional*). To add faces to gallery, please go to https://www.sacinta.com/face/map_gal_enroll |
+| Field | Type | Description |
+| --- | --- | --- |
+| `ApiKey` | Required | User API Key |
+| `SampleImages` | Required | Images |
+| `GalleryUniqueId` | Optional | Unique ID for the gallery . To add faces to gallery, please go to https://www.sacinta.com/face/manage-galleries/map-gal-enroll |
 
 
 Example JSON:
 
-{"ApiKey": "api key string", "SampleImages":{"1":"base64 encoded string",
-											 "2":"base64 encoded string"}}
+{"ApiKey": "api key string", "SampleImages":{"sample1":"base64 encoded string"}}
 									  
 #### Receive JSON
-If successful, the result contains the hub details in the result. 
+If successful, the result contains the hub details in the result.  The response will contain results for each of the sample numbers.
 
 | Result Field | Description |
 | --- | --- |
@@ -196,8 +226,7 @@ If successful, the result contains the hub details in the result.
 		
 Example JSON: *User Langauge is German* 
 
-{'ApiCode': 'ACTIVE', 'ApiFlag': 1, 'ApiMessage': 'API ist aktiv', 'ResponseCode': 'SUCCESS', 'ResponseFlag': 1, 'ResponseMessage': '1 Gesicht(e) gefunden', 
-	'Result': [{'BoundingBox': [51.0, 23.0, 105.0, 132.0], 'Confidence': 78.2, 'MatchCode': '0x4e635752', 'MatchedId': 't01', 'MatchedName': 'test', 'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Gesicht erkannt', 'SampleNumber': '1'}], 'TTE': '0.56s'}
+{'ApiCode': 'ACTIVE', 'ApiFlag': 1, 'ApiMessage': 'API ist aktiv', 'ResponseCode': 'SUCCESS', 'ResponseFlag': 1, 'ResponseMessage': '1 Gesicht(e) gefunden', 	'Result': [{'BoundingBox': [51.0, 23.0, 105.0, 132.0], 'Confidence': 78.2, 'MatchCode': '0x4e635752', 'MatchedId': 't01', 'MatchedName': 'test', 'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Gesicht erkannt', 'SampleNumber': 'sample1'}], 'TTE': '0.56s'}
 			   
 ## Get Enrolls
 This function is used to get the list of enrolled sample names and unqiue ids
@@ -209,9 +238,9 @@ This function is used to get the list of enrolled sample names and unqiue ids
 
 The only input needed for this function is the API key.
 
-| Field | Description |
-| --- | --- |
-| `ApiKey` | User API Key |
+| Field | Type | Description |
+| --- | --- | --- |
+| `ApiKey` | Required | User API Key |
 
 Example JSON:
 {"ApiKey": "api key string"}
@@ -245,11 +274,8 @@ If successful, the result contains the hub details in the result.
 		
 Example JSON:
 
-{'ApiCode': 'ACTIVE', 'ApiFlag': 1, 'ApiMessage': 'API ist aktiv', 'ResponseCode': 'SUCCESS', 'ResponseFlag': 1, 'ResponseMessage': '4Id(s) exists', 
-	'Result': {'Ids': [{'SampleName': 'test', 'UniqueId': 't01'}, 
-					   {'SampleName': 'test1', 'UniqueId': 't02'}, 
-					   {'SampleName': 'test2', 'UniqueId': 't03'}, 
-					   {'SampleName': 'test3', 'UniqueId': 't04'}], 'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Id(s) exists', 'TotalIds': 4}, 'TTE': '0.02s'}
+{'ApiCode': 'ACTIVE', 'ApiFlag': 1, 'ApiMessage': 'API ist aktiv', 'ResponseCode': 'SUCCESS', 'ResponseFlag': 1, 'ResponseMessage': '4Id(s) exists', 	'Result': {'Ids': [{'SampleName': 'test', 'UniqueId': 't01'}, {'SampleName': 'test1', 'UniqueId': 't02'}, 
+{'SampleName': 'test2', 'UniqueId': 't03'}, {'SampleName': 'test3', 'UniqueId': 't04'}], 'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Id(s) exists', 'TotalIds': 4}, 'TTE': '0.02s'}
 
 ## Remove Enrolls
 This function is used to remove ids from the database
@@ -261,19 +287,17 @@ This function is used to remove ids from the database
 
 Create the images filed. Sample number can be any unique alphanumeric string. The response will contain results for each of the sample numbers.
 
-| Unique ID Field | Description |
+| Unique ID Field | TyDescription |
 | --- | --- |
-| Sample Number 1 | Unique ID of the first sample to be remvoed |
-| Sample Number 2 | Unique ID of the second sample to be removed |
+| Sample Number | Unique ID of the first sample to be remvoed |
 
-| Field | Description |
-| --- | --- |
-| `ApiKey` | User API Key |
-| `UniqueIds` | Unique ID Field |
+| Field | Type | Description |
+| --- | --- | --- |
+| `ApiKey` | Required | User API Key |
+| `UniqueIds` | Required | Unique ID Field |
 
 Example JSON:
-{"ApiKey": "api key string", "SampleImages":{"1":"t01",
-											 "2":"t02"}}
+{"ApiKey": "api key string", "SampleImages":{"sample1":"t01", "sample2":"t02"}}
 									  
 #### Receive JSON
 If successful, the result contains the hub details in the result. 
@@ -300,7 +324,4 @@ If successful, the result contains the hub details in the result.
 		
 Example JSON:
 
-{'ApiCode': 'ACTIVE', 'ApiFlag': 1, 'ApiMessage': 'API ist aktiv', 'ResponseCode': 'SUCCESS', 'ResponseFlag': 1, 'ResponseMessage': '2 Id(s) removed', 
-	'Result': [{'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Id successfully deleted', 'SampleNumber': '1', 'SampleUniqueId': 't011'},
-			   {'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Id successfully deleted', 'SampleNumber': '2', 'SampleUniqueId': 't02'}], 'TTE': '0.21s'}
-
+{'ApiCode': 'ACTIVE', 'ApiFlag': 1, 'ApiMessage': 'API ist aktiv', 'ResponseCode': 'SUCCESS', 'ResponseFlag': 1, 'ResponseMessage': '2 Id(s) removed', 	'Result': [{'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Id successfully deleted', 'SampleNumber': 'sample1', 'SampleUniqueId': 't011'}, {'ResultCode': 'SUCCESS', 'ResultFlag': 1, 'ResultMessage': 'Id successfully deleted', 'SampleNumber': 'sample2', 'SampleUniqueId': 't02'}], 'TTE': '0.21s'}
